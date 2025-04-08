@@ -63,11 +63,14 @@ class RoadGraphExtractor(osmium.SimpleHandler):
             nodes = list(way.nodes)
             for start, end in zip(nodes[:-1], nodes[1:]):
                 if start.ref in self.nodes and end.ref in self.nodes:
-                    edge = (start.ref, end.ref, {"highway": road_type})
+                    segment_geometry = [(self.nodes[start.ref][0], self.nodes[start.ref][1]),
+                                    (self.nodes[end.ref][0], self.nodes[end.ref][1])]
+                    edge_attrs = {"highway": road_type, "geometry": segment_geometry}
+                    edge = (start.ref, end.ref, edge_attrs)
                     self.edges.append(edge)
                     # If not oneway, add a reverse edge.
                     if not oneway:
-                        self.edges.append((end.ref, start.ref, {"highway": road_type, "oneway": False}))
+                        self.edges.append((end.ref, start.ref, edge_attrs))
 
 def generate_road_graph(osm_file: Path, regions: List[str], output_file: Path) -> None:
     """
