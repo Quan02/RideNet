@@ -2,7 +2,6 @@
 This script extracts OpenStreetMap (OSM) data within a bounding box covering Kuala Lumpur and Selangor.
 It uses Osmium to process the raw PBF data and OSMnx to fetch geographic boundaries.
 """
-import pickle
 from pathlib import Path
 
 import osmium            # For parsing and filtering needed data from OSM PBF files.
@@ -10,7 +9,7 @@ import osmium.osm
 import osmnx as ox       # For retrieving region boundaries from OSM.
 import networkx as nx    # For generate directed graph.
 from typing import Tuple, List
-from preprocessing_utils import get_logger
+from preprocessing_utils import get_logger, save_graph
 
 logger = get_logger(__name__) 
 REGIONS = ["Selangor, Malaysia", "Kuala Lumpur, Malaysia"]
@@ -72,6 +71,21 @@ class RoadGraphExtractor(osmium.SimpleHandler):
                     if not oneway:
                         self.edges.append((end.ref, start.ref, edge_attrs))
 
+def extract_largest_subgraph(graph: nx.MultiDiGraph) -> nx.MultiDiGraph:
+    """
+    Extract the largest connected subgraph from the original graph.
+
+    Args:
+        graph (NetworkX graph): The original graph.
+    Returns:
+        NetworkX graph: The largest connected subgraph.
+    """
+    logger.info(f"Extract largest subgraph from file.")
+    largest_component = max(nx.weakly_connected_components(graph), key=len)
+    largest_subgraph = graph.subgraph(largest_component).copy()
+    logger.info(f"Largest subgraph has {largest_subgraph.number_of_nodes()} nodes and {largest_subgraph.number_of_edges()} edges.")
+    return largest_subgraph
+
 def generate_road_graph(osm_file: Path, regions: List[str], output_file: Path) -> None:
     """
     Build a road network graph and save it to a file.
@@ -93,13 +107,9 @@ def generate_road_graph(osm_file: Path, regions: List[str], output_file: Path) -
         graph.add_edge(source, target, **attr)
 
     graph.graph["crs"] = "epsg:4326" # Illustrate for longitude and latitude
+    graph = extract_largest_subgraph(graph)
     # Save the graph as pickle file for future use.
-    try:
-        with open(output_file, "wb") as f:
-            pickle.dump(graph, f)
-        logger.info(f"Graph successfully saved to {output_file}")
-    except Exception as e:
-        logger.error(f"Error saving graph to {output_file}: {e}")
+    save_graph(graph, output_file)
     
 
 def retrieve_boundary(regions: List[str])-> Tuple[float, float, float, float]:

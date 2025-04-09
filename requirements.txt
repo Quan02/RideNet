@@ -3,3 +3,4 @@ osmnx==2.02
 geopandas==1.0.1
 matplotlib==3.10.1
 RoadGraphExtractor==3.4.2
+geopy==2.4.1
