@@ -24,7 +24,7 @@ def validate_graph(graph: nx.MultiDiGraph) -> None:
         if 'geometry' not in data:
             logger.warning(f"Edge {u} -> {v} is missing geometry.")
         if 'distance' not in data:
-            logger.warning(f"Edge {u} -> {v} is missing geometry.")
+            logger.warning(f"Edge {u} -> {v} is missing distance.")
     if nx.is_weakly_connected(graph):
         logger.info("Graph is connected.")
     else:
