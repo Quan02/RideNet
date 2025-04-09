@@ -3,15 +3,16 @@ This script visualizes the road network graph using Folium.
 """
 
 from pathlib import Path
-import logging
-
 import pickle
+
 import folium
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-GRAPH_FILE = Path("data/processed/road_network.pkl")
-OUTPUT_HTML_MAP = Path("data/processed/interactive_road_network_map.html")
-MAX_EDGE_NUM = 150000    # Maximum number of edges to visualize
+from preprocessing_utils import get_logger
+
+logger = get_logger(__name__) 
+GRAPH_FILE = Path("data/processed/road_network_processed.pkl")
+OUTPUT_HTML_MAP = Path("data/processed/interactive_road_network_map_processed.html")
+MAX_EDGE_NUM = 300000    # Maximum number of edges to visualize
 
 def visualize_interactive_graph(graph_file: Path, output_html_map: Path):
     """
@@ -34,7 +35,7 @@ def visualize_interactive_graph(graph_file: Path, output_html_map: Path):
 
     # Save the map as an HTML file
     folium_map.save(output_html_map)
-    logging.info(f"Interactive map saved to {output_html_map}")
+    logger.info(f"Interactive map saved to {output_html_map}")
 
 if __name__ == "__main__":
     visualize_interactive_graph(GRAPH_FILE, OUTPUT_HTML_MAP)
