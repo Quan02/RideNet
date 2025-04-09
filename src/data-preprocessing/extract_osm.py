@@ -2,7 +2,6 @@
 This script extracts OpenStreetMap (OSM) data within a bounding box covering Kuala Lumpur and Selangor.
 It uses Osmium to process the raw PBF data and OSMnx to fetch geographic boundaries.
 """
-import logging
 import pickle
 from pathlib import Path
 
@@ -11,11 +10,12 @@ import osmium.osm
 import osmnx as ox       # For retrieving region boundaries from OSM.
 import networkx as nx    # For generate directed graph.
 from typing import Tuple, List
+from preprocessing_utils import get_logger
 
+logger = get_logger(__name__) 
 REGIONS = ["Selangor, Malaysia", "Kuala Lumpur, Malaysia"]
 OSM_FILE = Path("data/raw/malaysia-singapore-brunei-latest.osm.pbf")
 OUTPUT_GRAPH_FILE = Path("data/processed/road_network.pkl")
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
   
 class RoadGraphExtractor(osmium.SimpleHandler):
     """
@@ -97,9 +97,9 @@ def generate_road_graph(osm_file: Path, regions: List[str], output_file: Path) -
     try:
         with open(output_file, "wb") as f:
             pickle.dump(graph, f)
-        logging.info(f"Graph successfully saved to {output_file}")
+        logger.info(f"Graph successfully saved to {output_file}")
     except Exception as e:
-        logging.error(f"Error saving graph to {output_file}: {e}")
+        logger.error(f"Error saving graph to {output_file}: {e}")
     
 
 def retrieve_boundary(regions: List[str])-> Tuple[float, float, float, float]:
