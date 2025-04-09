@@ -3,15 +3,13 @@ This script visualizes the road network graph using Folium.
 """
 
 from pathlib import Path
-import pickle
-
 import folium
 
-from preprocessing_utils import get_logger
+from preprocessing_utils import get_logger, load_graph
 
 logger = get_logger(__name__) 
-GRAPH_FILE = Path("data/processed/road_network_processed.pkl")
-OUTPUT_HTML_MAP = Path("data/processed/interactive_road_network_map_processed.html")
+GRAPH_FILE = Path("data/processed/road_network_distance.pkl")
+OUTPUT_HTML_MAP = Path("data/processed/interactive_road_network_map_distance.html")
 MAX_EDGE_NUM = 300000    # Maximum number of edges to visualize
 
 def visualize_interactive_graph(graph_file: Path, output_html_map: Path):
@@ -21,8 +19,7 @@ def visualize_interactive_graph(graph_file: Path, output_html_map: Path):
         graph_file (Path): Path to the pickled graph file.
         output_html_map (Path): Path to save the interactive map.
     """
-    with open(graph_file, "rb") as f:
-        graph = pickle.load(f)
+    graph = load_graph(graph_file)
     center_malaysia = (3.139, 101.686)  # Latitude and Longitude for Kuala Lumpur
     folium_map = folium.Map(location=center_malaysia, zoom_start=11)
 
